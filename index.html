@@ -426,6 +426,8 @@ function checkBuild(p,w){
 function checkFormula(p,w,buildOk){
   var raw=normF(w.formula);
   if(!raw)return {ok:false,msg:"Fill in the formula boxes: symbols in the big boxes, subscripts in the small ones."};
+  var crowded=w.fx&&w.fx.g.some(function(g){return g.c.some(function(c){return /[A-Z]/.test(c.s.slice(1))})});
+  if(crowded)return {ok:false,msg:"Each big box holds one element symbol: a capital letter, sometimes followed by a lowercase letter. Give every element its own box with + element (for NH4, that is N in one box, then H with a subscript of 4)."};
   if(raw===p.formula)return {ok:true,msg:"Correct."};
   var got=parseF(raw),want=parseF(p.formula);
   if(!got){
