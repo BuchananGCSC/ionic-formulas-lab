@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Balancing act — self-check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Spectral:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FFFFFF; --surface: #F4F1E8; --card: #FFFFFF; --ink: #1A1A1A; --muted: #5F5E5A;
+  --accent: #0B1E3A; --border: #1A1A1A; --soft: #D9D4C5;
+  --ok: #1E6B3A; --ok-bg: #E4F2E8; --bad: #8A2A1E; --bad-bg: #F8E6E2; --warn: #6B4E00; --warn-bg: #FBF1D6;
+  --bar-l: #1D6E8E; --bar-r: #0B1E3A;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1626; --surface: #16223A; --card: #121C30; --ink: #ECE8DC; --muted: #A9A79F;
+    --accent: #E8C77A; --border: #6F7A90; --soft: #2C3A56;
+    --ok: #8FD6A6; --ok-bg: #173226; --bad: #F2A99C; --bad-bg: #3A1D19; --warn: #F0D58A; --warn-bg: #3A3016;
+    --bar-l: #6FB8D4; --bar-r: #E8C77A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1626; --surface: #16223A; --card: #121C30; --ink: #ECE8DC; --muted: #A9A79F;
+  --accent: #E8C77A; --border: #6F7A90; --soft: #2C3A56;
+  --ok: #8FD6A6; --ok-bg: #173226; --bad: #F2A99C; --bad-bg: #3A1D19; --warn: #F0D58A; --warn-bg: #3A3016;
+  --bar-l: #6FB8D4; --bar-r: #E8C77A;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 Inter, "Helvetica Neue", Arial, sans-serif; }
+main { max-width: 860px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+h1, h2 { font-family: Spectral, Georgia, serif; color: var(--accent); margin: 0; }
+h1 { font-size: 1.9rem; line-height: 1.15; }
+h2 { font-size: 1.15rem; }
+.label { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.intro { background: var(--surface); border: 1px solid var(--soft); border-radius: 10px; padding: .9rem 1rem; margin: 1rem 0 1.25rem; }
+.intro p { margin: .25rem 0; }
+.progress { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.dots { display: flex; gap: .35rem; flex-wrap: wrap; }
+.dot { width: 2rem; height: 2rem; border-radius: 50%; border: 2px solid var(--border); display: grid; place-items: center; font-size: .8rem; font-weight: 700; text-decoration: none; color: var(--ink); background: var(--card); }
+.dot.ok { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+.card header { display: flex; align-items: baseline; gap: .6rem; margin-bottom: .7rem; }
+.num { font-weight: 700; font-size: 1.05rem; }
+.eq { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .5rem; font-size: 1.2rem; overflow-x: auto; padding-bottom: .2rem; }
+.term { display: inline-flex; align-items: center; gap: .25rem; white-space: nowrap; }
+.term input { width: 3.2rem; font: inherit; font-weight: 700; text-align: center; padding: .2rem .1rem; border: 2px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--ink); }
+.term input:focus { outline: 3px solid var(--bar-l); outline-offset: 1px; }
+.op { color: var(--muted); }
+.arrow { font-size: 1.4rem; padding: 0 .2rem; }
+sub { font-size: .7em; }
+.tally { width: 100%; border-collapse: collapse; margin-top: .8rem; font-size: .92rem; }
+.tally-wrap { overflow-x: auto; }
+.tally th, .tally td { border: 1px solid var(--soft); padding: .3rem .5rem; text-align: center; }
+.tally th { background: var(--surface); font-weight: 700; }
+.tally td.el { font-weight: 700; }
+.bars { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; min-width: 120px; }
+.bar { height: .7rem; border-radius: 3px; }
+.bar.l { background: var(--bar-l); justify-self: end; }
+.bar.r { background: var(--bar-r); justify-self: start; }
+.st { font-weight: 700; }
+.st.ok { color: var(--ok); }
+.st.bad { color: var(--bad); }
+.verdict { margin-top: .7rem; padding: .55rem .75rem; border-radius: 8px; font-weight: 700; border: 1px solid transparent; }
+.verdict.ok { background: var(--ok-bg); color: var(--ok); border-color: var(--ok); }
+.verdict.bad { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); }
+.verdict.warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
+.verdict.idle { background: var(--surface); color: var(--muted); border-color: var(--soft); font-weight: 400; }
+.note { color: var(--muted); font-size: .9rem; margin: .4rem 0 0; }
+.row { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .4rem; }
+.row input[type=text] { flex: 1 1 260px; font: inherit; padding: .45rem .6rem; border: 2px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--ink); }
+button { font: inherit; font-weight: 700; padding: .45rem .9rem; border-radius: 6px; border: 2px solid var(--accent); background: var(--accent); color: var(--bg); cursor: pointer; }
+button.ghost { background: transparent; color: var(--accent); }
+.err { color: var(--bad); font-weight: 700; margin-top: .4rem; }
+footer { color: var(--muted); font-size: .82rem; margin-top: 2rem; }
+footer a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <div class="label">Integrated Chemistry and Physics</div>
+  <h1>Balancing act — self-check</h1>
+
+  <section class="intro">
+    <p><strong>Do the worksheet on paper first.</strong> Then type your coefficients here to check them.</p>
+    <p>Type <strong>1</strong> where you would leave the blank empty. The tally counts the atoms of each element on each side. An equation is done when every element matches <em>and</em> you used the smallest whole numbers.</p>
+  </section>
+
+  <div class="progress">
+    <span class="label" id="progressText">0 of 8 balanced</span>
+    <nav class="dots" id="dots" aria-label="Jump to an equation"></nav>
+  </div>
+
+  <div id="cards"></div>
+
+  <section class="card" id="custom">
+    <header><span class="num">Try your own</span><h2>Any equation</h2></header>
+    <p class="note" style="margin-top:0">Type an equation with no coefficients, using + between formulas and -&gt; or = for the arrow. Example: N2 + H2 -&gt; NH3</p>
+    <div class="row">
+      <input type="text" id="customInput" aria-label="Your equation" placeholder="N2 + H2 -> NH3" autocomplete="off" spellcheck="false">
+      <button id="customGo">Set up</button>
+    </div>
+    <div id="customErr" class="err" hidden></div>
+    <div id="customBody"></div>
+  </section>
+
+  <footer>
+    Want to see the molecules? PhET’s <a href="https://phet.colorado.edu/en/simulations/balancing-chemical-equations" target="_blank" rel="noopener">Balancing Chemical Equations</a> simulation shows atoms, balance scales and bar charts for its own set of reactions.
+  </footer>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // Worksheet equations, exactly as printed on the review (formulas only; coefficients are the student's).
+  const WORKSHEET = [
+    { n: "1", r: ["Na", "MgF2"], p: ["NaF", "Mg"] },
+    { n: "2", r: ["Mg", "HCl"], p: ["MgCl2", "H2"] },
+    { n: "3", r: ["Cu2O", "C"], p: ["Cu", "CO2"] },
+    { n: "4", r: ["P", "O2"], p: ["P2O5"] },
+    { n: "5", r: ["NaCl(aq)", "F2(g)"], p: ["NaF(aq)", "Cl2(aq)"] },
+    { n: "6", r: ["CH4", "O2"], p: ["CO2", "H2O"] },
+    { n: "7", r: ["S8", "O2"], p: ["SO3"] },
+    { n: "8", r: ["KClO3"], p: ["KCl", "O2"] },
+    { n: "10", r: ["H2(SO4)", "NaNO2"], p: ["HNO", "Na2"], explore: true,
+      note: "Question 10 says this equation does not follow the law of conservation of mass. Try to balance it anyway and watch the tally. What happens to some elements no matter what you enter? Use what you see as your evidence." },
+  ];
+
+  const STATE = /\((aq|g|s|l)\)$/i;
+
+  // Parse one formula such as H2(SO4) or NaCl(aq) into { element: count }.
+  function parseFormula(raw) {
+    const f = raw.trim().replace(STATE, "");
+    let i = 0;
+    function num() { let s = ""; while (i < f.length && /\d/.test(f[i])) s += f[i++]; return s ? parseInt(s, 10) : 1; }
+    function group() {
+      const out = {};
+      while (i < f.length) {
+        const c = f[i];
+        if (c === "(" || c === "[") {
+          i++; const inner = group();
+          if (f[i] !== ")" && f[i] !== "]") throw new Error("Unmatched bracket in " + raw);
+          i++; const k = num();
+          for (const e in inner) out[e] = (out[e] || 0) + inner[e] * k;
+        } else if (c === ")" || c === "]") { return out; }
+        else if (/[A-Z]/.test(c)) {
+          let e = c; i++;
+          while (i < f.length && /[a-z]/.test(f[i])) e += f[i++];
+          const k = num(); out[e] = (out[e] || 0) + k;
+        } else { throw new Error("I can’t read “" + raw + "”. Check the capital letters."); }
+      }
+      return out;
+    }
+    if (!f) throw new Error("An empty formula is not allowed.");
+    const res = group();
+    if (i < f.length) throw new Error("Unmatched bracket in " + raw);
+    return res;
+  }
+
+  // Formula to HTML with subscripts; state labels become subscripts as on the worksheet.
+  function formulaHTML(raw) {
+    const m = raw.match(STATE);
+    const body = m ? raw.slice(0, m.index) : raw;
+    let h = body.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/(\d+)/g, "<sub>$1</sub>");
+    if (m) h += "<sub>(" + m[1] + ")</sub>";
+    return h;
+  }
+
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+
+  function el(tag, attrs, html) {
+    const e = document.createElement(tag);
+    for (const k in attrs || {}) e.setAttribute(k, attrs[k]);
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+
+  // Remember a viewer's own entries in this browser only (a convenience; works without it).
+  const KEY = "balancing-self-check-v1";
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { saved = {}; }
+  function persist() { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* storage unavailable */ } }
+
+  const results = {}; // worksheet number -> true when balanced in lowest terms
+
+  function buildCard(container, eq, opts) {
+    const species = [...eq.r.map((f) => ({ f, side: "r" })), ...eq.p.map((f) => ({ f, side: "p" }))];
+    species.forEach((s) => { s.atoms = parseFormula(s.f); });
+    const elements = [];
+    species.forEach((s) => Object.keys(s.atoms).forEach((e) => { if (!elements.includes(e)) elements.push(e); }));
+
+    const line = el("div", { class: "eq" });
+    const inputs = [];
+    species.forEach((s, idx) => {
+      if (idx > 0) {
+        const arrowHere = s.side === "p" && species[idx - 1].side === "r";
+        line.appendChild(el("span", { class: arrowHere ? "arrow" : "op", "aria-hidden": "true" }, arrowHere ? "→" : "+"));
+      }
+      const t = el("span", { class: "term" });
+      const inp = el("input", { type: "number", inputmode: "numeric", min: "1", max: "99", step: "1", "aria-label": "Coefficient for " + s.f });
+      const store = opts.storeKey ? saved[opts.storeKey] : null;
+      if (store && store[idx] != null) inp.value = store[idx];
+      t.appendChild(inp);
+      t.appendChild(el("span", {}, formulaHTML(s.f)));
+      line.appendChild(t);
+      inputs.push(inp);
+    });
+    container.appendChild(line);
+
+    if (eq.note) container.appendChild(el("p", { class: "note" }, eq.note));
+
+    const wrap = el("div", { class: "tally-wrap" });
+    const table = el("table", { class: "tally" });
+    table.innerHTML = "<thead><tr><th scope='col'>Element</th><th scope='col'>Reactants (left)</th><th scope='col'>Products (right)</th><th scope='col'>Compare</th><th scope='col'>Match?</th></tr></thead>";
+    const tbody = el("tbody");
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    container.appendChild(wrap);
+    const verdict = el("div", { class: "verdict idle", role: "status", "aria-live": "polite" });
+    container.appendChild(verdict);
+
+    function update() {
+      const vals = inputs.map((x) => (x.value.trim() === "" ? null : Number(x.value)));
+      if (opts.storeKey) { saved[opts.storeKey] = inputs.map((x) => x.value); persist(); }
+      const filled = vals.every((v) => v != null);
+      const valid = vals.every((v) => v == null || (Number.isInteger(v) && v >= 1));
+      const c = vals.map((v) => (v == null ? 0 : v));
+      const L = {}, R = {};
+      elements.forEach((e) => { L[e] = 0; R[e] = 0; });
+      species.forEach((s, k) => { for (const e in s.atoms) (s.side === "r" ? L : R)[e] += s.atoms[e] * c[k]; });
+      const max = Math.max(1, ...elements.map((e) => Math.max(L[e], R[e])));
+      tbody.innerHTML = "";
+      const off = [];
+      elements.forEach((e) => {
+        const ok = L[e] === R[e];
+        if (!ok) off.push(e);
+        const tr = el("tr");
+        tr.innerHTML = "<td class='el'>" + e + "</td><td>" + L[e] + "</td><td>" + R[e] + "</td>" +
+          "<td><div class='bars'><div class='bar l' style='width:" + (100 * L[e] / max) + "%'></div><div class='bar r' style='width:" + (100 * R[e] / max) + "%'></div></div></td>" +
+          "<td class='st " + (ok ? "ok'>✓ yes" : "bad'>✗ no") + "</td>";
+        tbody.appendChild(tr);
+      });
+
+      let good = false;
+      if (!valid) { verdict.className = "verdict bad"; verdict.textContent = "Coefficients must be whole numbers, 1 or more."; }
+      else if (!filled) { verdict.className = "verdict idle"; verdict.textContent = "Fill every box to check. Type 1 where you would leave the blank empty."; }
+      else if (off.length) {
+        verdict.className = "verdict bad";
+        verdict.textContent = "Not balanced yet. Check " + off.join(", ") + ".";
+      } else {
+        const g = c.reduce((a, b) => gcd(a, b));
+        if (g > 1) { verdict.className = "verdict warn"; verdict.textContent = "Every element matches, but all your coefficients can be divided by " + g + ". Use the smallest whole numbers possible."; }
+        else { verdict.className = "verdict ok"; verdict.textContent = "Balanced, with the smallest whole numbers. Nice work."; good = true; }
+      }
+      if (opts.onResult) opts.onResult(good);
+    }
+    inputs.forEach((x) => x.addEventListener("input", update));
+    update();
+  }
+
+  // Worksheet cards
+  const cards = document.getElementById("cards");
+  const dots = document.getElementById("dots");
+  const scored = WORKSHEET.filter((q) => !q.explore);
+  function refreshProgress() {
+    const n = scored.filter((q) => results[q.n]).length;
+    document.getElementById("progressText").textContent = n + " of " + scored.length + " balanced";
+    scored.forEach((q) => document.getElementById("dot-" + q.n).classList.toggle("ok", !!results[q.n]));
+  }
+  WORKSHEET.forEach((q) => {
+    if (!q.explore) dots.appendChild(el("a", { class: "dot", id: "dot-" + q.n, href: "#q" + q.n, title: "Equation " + q.n }, q.n));
+    const card = el("section", { class: "card", id: "q" + q.n });
+    card.appendChild(el("header", {}, "<span class='num'>" + q.n + ".</span>" + (q.explore ? "<h2>The equation in question 10</h2>" : "")));
+    cards.appendChild(card);
+    buildCard(card, q, { storeKey: "q" + q.n, onResult: q.explore ? null : (ok) => { results[q.n] = ok; refreshProgress(); } });
+  });
+  refreshProgress();
+
+  // Custom equation
+  const ci = document.getElementById("customInput"), cb = document.getElementById("customBody"), ce = document.getElementById("customErr");
+  function setupCustom() {
+    ce.hidden = true; cb.innerHTML = "";
+    const text = ci.value.replace(/→|⟶|=>|-+>|=/g, "->");
+    const parts = text.split("->");
+    try {
+      if (parts.length !== 2) throw new Error("Use one arrow: -> or =");
+      const side = (s) => s.split("+").map((x) => x.trim().replace(/^\d+\s*/, "")).filter(Boolean);
+      const r = side(parts[0]), p = side(parts[1]);
+      if (!r.length || !p.length) throw new Error("Put at least one formula on each side.");
+      [...r, ...p].forEach(parseFormula);
+      buildCard(cb, { r, p }, {});
+      try { saved.custom = ci.value; persist(); } catch (e) { /* ignore */ }
+    } catch (err) { ce.textContent = err.message; ce.hidden = false; }
+  }
+  document.getElementById("customGo").addEventListener("click", setupCustom);
+  ci.addEventListener("keydown", (e) => { if (e.key === "Enter") setupCustom(); });
+  if (saved.custom) { ci.value = saved.custom; setupCustom(); }
+})();
+</script>
+</body>
+</html>
