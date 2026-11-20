@@ -79,6 +79,8 @@ sub { font-size: .7em; }
 .row input[type=text] { flex: 1 1 260px; font: inherit; padding: .45rem .6rem; border: 2px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--ink); }
 button { font: inherit; font-weight: 700; padding: .45rem .9rem; border-radius: 6px; border: 2px solid var(--accent); background: var(--accent); color: var(--bg); cursor: pointer; }
 button.ghost { background: transparent; color: var(--accent); }
+.verdict .next { display: inline-block; margin-left: .75rem; margin-top: .3rem; background: var(--ok); border-color: var(--ok); color: var(--bg); }
+.card.done { border-color: var(--ok); box-shadow: 0 0 0 2px var(--ok-bg); }
 .err { color: var(--bad); font-weight: 700; margin-top: .4rem; }
 footer { color: var(--muted); font-size: .82rem; margin-top: 2rem; }
 footer a { color: inherit; }
@@ -95,7 +97,7 @@ footer a { color: inherit; }
   </section>
 
   <div class="progress">
-    <span class="label" id="progressText">0 of 8 balanced</span>
+    <span class="label" id="progressText" role="status">0 of 8 balanced</span>
     <nav class="dots" id="dots" aria-label="Jump to an equation"></nav>
   </div>
 
@@ -259,8 +261,20 @@ footer a { color: inherit; }
       } else {
         const g = c.reduce((a, b) => gcd(a, b));
         if (g > 1) { verdict.className = "verdict warn"; verdict.textContent = "Every element matches, but all your coefficients can be divided by " + g + ". Use the smallest whole numbers possible."; }
-        else { verdict.className = "verdict ok"; verdict.textContent = "Balanced, with the smallest whole numbers. Nice work."; good = true; }
+        else {
+          verdict.className = "verdict ok"; verdict.textContent = "✓ Balanced, with the smallest whole numbers. Nice work."; good = true;
+          if (opts.next) {
+            const b = el("button", { type: "button", class: "next" }, opts.next.label + " →");
+            b.addEventListener("click", () => {
+              const t = document.getElementById(opts.next.id);
+              t.scrollIntoView({ behavior: "smooth", block: "start" });
+              const f = t.querySelector("input"); if (f) f.focus({ preventScroll: true });
+            });
+            verdict.appendChild(b);
+          }
+        }
       }
+      if (opts.card) opts.card.classList.toggle("done", good);
       if (opts.onResult) opts.onResult(good);
     }
     inputs.forEach((x) => x.addEventListener("input", update));
@@ -276,12 +290,14 @@ footer a { color: inherit; }
     document.getElementById("progressText").textContent = n + " of " + scored.length + " balanced";
     scored.forEach((q) => document.getElementById("dot-" + q.n).classList.toggle("ok", !!results[q.n]));
   }
-  WORKSHEET.forEach((q) => {
+  WORKSHEET.forEach((q, qi) => {
     if (!q.explore) dots.appendChild(el("a", { class: "dot", id: "dot-" + q.n, href: "#q" + q.n, title: "Equation " + q.n }, q.n));
     const card = el("section", { class: "card", id: "q" + q.n });
     card.appendChild(el("header", {}, "<span class='num'>" + q.n + ".</span>" + (q.explore ? "<h2>The equation in question 10</h2>" : "")));
     cards.appendChild(card);
-    buildCard(card, q, { storeKey: "q" + q.n, onResult: q.explore ? null : (ok) => { results[q.n] = ok; refreshProgress(); } });
+    const nq = WORKSHEET[qi + 1];
+    const next = nq ? { id: "q" + nq.n, label: nq.explore ? "Next: question 10" : "Next: equation " + nq.n } : { id: "custom", label: "Try your own equation" };
+    buildCard(card, q, { card, next: q.explore ? null : next, storeKey: "q" + q.n, onResult: q.explore ? null : (ok) => { results[q.n] = ok; refreshProgress(); } });
   });
   refreshProgress();
 
