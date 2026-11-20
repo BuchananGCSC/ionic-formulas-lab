@@ -288,7 +288,7 @@ footer a { color: inherit; }
   function refreshProgress() {
     const n = scored.filter((q) => results[q.n]).length;
     document.getElementById("progressText").textContent = n + " of " + scored.length + " balanced";
-    scored.forEach((q) => document.getElementById("dot-" + q.n).classList.toggle("ok", !!results[q.n]));
+    scored.forEach((q) => { const d = document.getElementById("dot-" + q.n); if (d) d.classList.toggle("ok", !!results[q.n]); });
   }
   WORKSHEET.forEach((q, qi) => {
     if (!q.explore) dots.appendChild(el("a", { class: "dot", id: "dot-" + q.n, href: "#q" + q.n, title: "Equation " + q.n }, q.n));
